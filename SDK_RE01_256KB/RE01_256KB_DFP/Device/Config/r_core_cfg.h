@@ -37,12 +37,14 @@
 #ifndef CORE_CFG_H
 #define CORE_CFG_H
 
+#include "config_mode.h"
+
 /*******************************************************************************************************************//**
  * @brief Main clock oscillator operation@n
  *        0 = MOSC is not to be used.@n
  *        1 = MOSC is to be used.@n
  **********************************************************************************************************************/
-#define SYSTEM_CFG_MOSC_ENABLE            (0)
+#define SYSTEM_CFG_MOSC_ENABLE            (1)
 
 /*******************************************************************************************************************//**
  * @brief Input clock frequency in Hz (MOSC)@n
@@ -106,7 +108,7 @@
 #define SYSTEM_CFG_HOCO_FREQUENCY         (1)
 
 /*******************************************************************************************************************//**
- * @brief FLL function operation.@n
+ * @brief FLL function operation. (!!Testing has not been completed for this configuration!!)@n
  *        0 = FLL function is disable.@n
  *        1 = FLL function is enable.@n
  **********************************************************************************************************************/
@@ -117,21 +119,21 @@
  *        0 = MOCO is not to be used.@n
  *        1 = MOCO is to be used.@n
  **********************************************************************************************************************/
-#define SYSTEM_CFG_MOCO_ENABLE            (1)
+#define SYSTEM_CFG_MOCO_ENABLE            (0)
 
 /*******************************************************************************************************************//**
  * @brief Low-speed on-chip oscillator operation@n
  *        0 = LOCO is not to be used.@n
  *        1 = LOCO is to be used.@n
  **********************************************************************************************************************/
-#define SYSTEM_CFG_LOCO_ENABLE            (1)
+#define SYSTEM_CFG_LOCO_ENABLE            (0)
 
 /*******************************************************************************************************************//**
  * @brief Sub clock oscillator operation@n
  *        0 = Sub clock is not to be used.@n
  *        1 = Sub clock is to be used.@n
  **********************************************************************************************************************/
-#define SYSTEM_CFG_SOSC_ENABLE            (0)
+#define SYSTEM_CFG_SOSC_ENABLE            (1)
 
 /*******************************************************************************************************************//**
  * @brief Sub clock oscillator drive capability (SOMCR.SODRV)@n
@@ -140,7 +142,12 @@
  *        2 = Low CL4p@n
  *        3 = Low CL7p@n
  **********************************************************************************************************************/
+
+#if (TRACKER_RX_TX_UPDATE == 2) 
+#define SYSTEM_CFG_SOSC_DRIVE             (2)  // Only TX uses Low CL SubOSC
+#else
 #define SYSTEM_CFG_SOSC_DRIVE             (0)
+#endif
 
 /*******************************************************************************************************************//**
  * @brief Sub clock oscillator noise filter (SOMCR.SONFSTP)@n
@@ -231,7 +238,8 @@
  **********************************************************************************************************************/
 /* @{ */
 #define SYSTEM_CFG_OFS0                     (0xFFFFFFFF)    /* OFS0 register          */
-#define SYSTEM_CFG_OFS1                     (0xFFFFFFFF)    /* OFS1 register          */
+//#define SYSTEM_CFG_OFS1                     (0xFFFFFFFF)    /* OFS1 register          */
+#define SYSTEM_CFG_OFS1                     (0xFFFFBFFF)    /* OFS1 register       VBAT=2.7V  */
 #define SYSTEM_CFG_SECMPU_PC0_START         (0xFFFFFFFF)    /* SECMPU PC0 START       */
 #define SYSTEM_CFG_SECMPU_PC0_END           (0xFFFFFFFF)    /* SECMPU PC0 END         */
 #define SYSTEM_CFG_SECMPU_PC1_START         (0xFFFFFFFF)    /* SECMPU PC1 START       */

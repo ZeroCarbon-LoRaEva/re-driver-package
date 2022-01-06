@@ -76,7 +76,39 @@ SECTIONS
 		/* Reserving 0x100 bytes of space for ROM registers. */
 		. = . + 0x100;
 
-		*(EXCLUDE_FILE(*pin.o *\libgcc.a:* *\libc.a:* *\libg.a:* *\librdimon.a:* *\libm.a:* *\libnosys.a:* *\libc_nano.a:* *\libg_nano.a:* *\librdimon_nano.a:*) .text*)
+/* Additional Setting for LoRaWAN */
+		/* Keydata start at address 0x00010000 */
+		. = 0x02000;
+		__lorawan_control_block_data_start = .;
+		KEEP(*(.lorawan_control_block_data))
+		KEEP(*(.lorawan_control_block_data.*))
+		__lorawan_control_block_data_end = .;
+
+/*End Additional Setting for LoRaWAN */
+
+
+/* Additional Setting for TSIP */
+		/* Keydata start at address 0x00010000 */
+		. = 0x02800;
+		__firmware_update_control_block_data_start = .;
+		KEEP(*(.firmware_update_control_block_data))
+		KEEP(*(.firmware_update_control_block_data.*))
+		__firmware_update_control_block_data_end = .;
+
+		/* Keydata start at address 0x00011000 */
+		. = 0x02C00;
+		__firmware_update_control_block_mirror_data_start = .;
+		KEEP(*(.firmware_update_control_block_mirror_data))
+		KEEP(*(.firmware_update_control_block_mirror_data.*))
+		__firmware_update_control_block_mirror_data_end = .;
+
+/* End Additional Setting for TSIP */
+
+
+
+		. = 0x03000;
+
+		*(EXCLUDE_FILE(*pin.o *\libgcc.a:* *\libc.a:*) .text*)
 
 		KEEP(*(.version))
 		KEEP(*(.init))
@@ -96,7 +128,8 @@ SECTIONS
  		*(SORT(.dtors.*))
  		*(.dtors)
 
-		*(EXCLUDE_FILE(*pin.o *\libgcc.a:* *\libc.a:* *\libg.a:* *\librdimon.a:* *\libm.a:* *\libnosys.a:* *\libc_nano.a:* *\libg_nano.a:* *\librdimon_nano.a:*) .rodata*)
+		*(EXCLUDE_FILE(*pin.o *\libgcc.a:* *\libc.a:*) .rodata*)
+
 
 		__ROM_End = .;
 	} > FLASH = 0xFF
@@ -211,13 +244,6 @@ SECTIONS
 		KEEP("*pin.o"(.text* .rodata*))
 		KEEP("*\libgcc.a:*" (.text* .rodata* ))
 		KEEP("*\libc.a:*" (.text* .rodata* ))
-		KEEP("*\libg.a:*" (.text* .rodata* ))
-		KEEP("*\librdimon.a:*" (.text* .rodata* ))
-		KEEP("*\libm.a:*" (.text* .rodata* ))
-		KEEP("*\libnosys.a:*" (.text* .rodata* ))
-		KEEP("*\libc_nano.a:*" (.text* .rodata* ))
-		KEEP("*\libg_nano.a:*" (.text* .rodata* ))
-		KEEP("*\librdimon_nano.a:*" (.text* .rodata* ))
 		. = ALIGN(4);
 		__ramobj_end = .;
 	} > RAM AT> FLASH

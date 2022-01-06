@@ -133,7 +133,7 @@ extern int main();                       /* @suppress("Non-portable variable typ
 typedef void( *intfunc )( void );        /* @suppress("Source line ordering") */
 typedef union { intfunc __fun; void * __ptr; } intvec_elem; /* @suppress("Data type member naming") */ /* @suppress("Data type naming") */
 #if defined(__GNUC__)                    /* GCC Compiler */
-#define SYSTEM_CFG_STACK_SIZE  (0x400)   /* @suppress("Internal macro naming") */ /* @suppress("Non-block comment") */
+#define SYSTEM_CFG_STACK_SIZE  (0x2000)   /* @suppress("Internal macro naming") */ /* @suppress("Non-block comment") */
 #define SYSTEM_CFG_HEAP_SIZE  (0x400)
 NON_VOLATILE uint8_t g_main_stack[SYSTEM_CFG_STACK_SIZE] __attribute__ ((section(".stack"))) __attribute__ ((aligned (8))) = {0U};
 NON_VOLATILE uint8_t g_main_heap[SYSTEM_CFG_HEAP_SIZE] __attribute__ ((section(".heap"))) __attribute__ ((aligned (8))) = {0U};

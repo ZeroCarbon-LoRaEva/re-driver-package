@@ -18,7 +18,7 @@
 **********************************************************************************************************************/
 /**********************************************************************************************************************
 * File Name    : Pin.c
-* Version      : 1.10
+* Version      : 0.80
 * Description  : Pin Setting
 **********************************************************************************************************************/
 /*********************************************************************************************************************
@@ -31,10 +31,6 @@
 *                               Corrected typo in function name
 *                                - R_GTP_Pinset_CH1 -> R_GPT_Pinset_CH1
 *                               Added IRQ2_B pin setting to R_ICU_Pinset_CH2().
-*         : 05.11.2020 1.10     Add R_ICU_Pinset and R_ICU_Pinclr
-*                               Add R_RTC_Pinset and R_RTC_Pinclr
-*                               Split R_GPT_COM_Pinset/clr function
-*                               into R_GPT_COMA_Pinset/clr and R_GPT_COMB_Pinset/clr
 **********************************************************************************************************************/
 
 
@@ -46,6 +42,7 @@
  Includes <System Includes> , "Project Includes"
  *****************************************************************************/
 #include "Pin.h"
+#include "config_mode.h"
 
 /*****************************************************************************
   Macro definitions
@@ -74,48 +71,8 @@
 #define R_PIN_PRV_TMR_PSEL                (0x08U)    /*!< TMR                    : 01000b */
 #define R_PIN_PRV_CLKOUT_PSEL             (0x19U)    /*!< CLKOUT                 : 11001b */
 #define R_PIN_PRV_AGTW_PSEL               (0x18U)    /*!< AGTW                   : 11000b */
-#define R_PIN_PRV_RTC_PSEL                (0x09U)    /*!< RTC                    : 01001b */
 /* @} */
 
-/**************************************************************************//**
-* @brief This function sets Pin of ICU.
-*******************************************************************************/
-/* Function Name : R_ICU_Pinset */
-void R_ICU_Pinset(void)  // @suppress("API function naming") @suppress("Function declaration")
-{
-    R_ICU_Pinset_NMI();
-    R_ICU_Pinset_CH0();
-    R_ICU_Pinset_CH1();
-    R_ICU_Pinset_CH2();
-    R_ICU_Pinset_CH3();
-    R_ICU_Pinset_CH4();
-    R_ICU_Pinset_CH5();
-    R_ICU_Pinset_CH6();
-    R_ICU_Pinset_CH7();
-    R_ICU_Pinset_CH8();
-    R_ICU_Pinset_CH9();
-
-}/* End of Function R_ICU_Pinset() */
-
-/**************************************************************************//**
-* @brief This function clears the pin setting of ICU.
-*******************************************************************************/
-/* Function Name : R_ICU_Pinclr */
-void R_ICU_Pinclr(void)  // @suppress("API function naming")
-{
-    R_ICU_Pinclr_NMI();
-    R_ICU_Pinclr_CH0();
-    R_ICU_Pinclr_CH1();
-    R_ICU_Pinclr_CH2();
-    R_ICU_Pinclr_CH3();
-    R_ICU_Pinclr_CH4();
-    R_ICU_Pinclr_CH5();
-    R_ICU_Pinclr_CH6();
-    R_ICU_Pinclr_CH7();
-    R_ICU_Pinclr_CH8();
-    R_ICU_Pinclr_CH9();
-
-}/* End of function R_ICU_Pinclr() */
 
 /**************************************************************************//**
 * @brief This function sets Pin of NMI.
@@ -271,6 +228,7 @@ void R_ICU_Pinclr_CH2(void)  // @suppress("API function naming")
     R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
 }/* End of function R_ICU_Pinclr_CH2() */
 
+#if (BOARD_TYPE_EVK_TOKYOCOM  == 1)
 /**************************************************************************//**
 * @brief This function sets Pin of IRQ3.
 *******************************************************************************/
@@ -286,6 +244,64 @@ void R_ICU_Pinset_CH3(void)  // @suppress("API function naming")
 //    PFS->P113PFS_b.PDR  = 0U;  /* 0: Input port,  1: Output port */
 //    PFS->P113PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
 //    PFS->P113PFS_b.ISEL = 1U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+
+    /* IRQ3_B : P106 */
+//    PFS->P106PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P106PFS_b.PSEL = 0U;  /* 0: Do not assign Peripheral */
+//    PFS->P106PFS_b.PDR  = 0U;  /* 0: Input port,  1: Output port */
+//    PFS->P106PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P106PFS_b.ISEL = 1U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+
+    /* IRQ3_C : P604 */
+    PFS->P604PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P604PFS_b.PSEL = 0U;  /* 0: Do not assign Peripheral */
+    PFS->P604PFS_b.PDR  = 0U;  /* 0: Input port,  1: Output port */
+    PFS->P604PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P604PFS_b.ISEL = 1U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+
+    /* Enable protection for PFS function (Set to PWPR register) */
+    R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
+}/* End of function R_ICU_Pinset_CH3() */
+
+/**************************************************************************//**
+* @brief This function clears the pin setting of IRQ3.
+*******************************************************************************/
+/* Function Name : R_ICU_Pinclr_CH3 */
+void R_ICU_Pinclr_CH3(void)  // @suppress("API function naming")
+{
+    /* Disable protection for PFS function (Set to PWPR register) */
+    R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
+
+    /* IRQ3_A_DS : P113 */
+//    PFS->P113PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* IRQ3_B : P106 */
+//    PFS->P106PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* IRQ3_C : P604 */
+    PFS->P604PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* Enable protection for PFS function (Set to PWPR register) */
+    R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
+}/* End of function R_ICU_Pinclr_CH3() */
+
+#elif (BOARD_TYPE_EVK_TOKYOCOM  == 2)
+
+/**************************************************************************//**
+* @brief This function sets Pin of IRQ3.
+*******************************************************************************/
+/* Function Name : R_ICU_Pinset_CH3 */
+void R_ICU_Pinset_CH3(void)  // @suppress("API function naming")
+{
+    /* Disable protection for PFS function (Set to PWPR register) */
+    R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
+
+    /* IRQ3_A_DS : P113 */
+    PFS->P113PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P113PFS_b.PSEL = 0U;  /* 0: Do not assign Peripheral */
+    PFS->P113PFS_b.PDR  = 0U;  /* 0: Input port,  1: Output port */
+    PFS->P113PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P113PFS_b.ISEL = 1U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
 
     /* IRQ3_B : P106 */
 //    PFS->P106PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
@@ -315,7 +331,7 @@ void R_ICU_Pinclr_CH3(void)  // @suppress("API function naming")
     R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
 
     /* IRQ3_A_DS : P113 */
-//    PFS->P113PFS &= R_PIN_PRV_CLR_MASK;
+    PFS->P113PFS &= R_PIN_PRV_CLR_MASK;
 
     /* IRQ3_B : P106 */
 //    PFS->P106PFS &= R_PIN_PRV_CLR_MASK;
@@ -326,6 +342,9 @@ void R_ICU_Pinclr_CH3(void)  // @suppress("API function naming")
     /* Enable protection for PFS function (Set to PWPR register) */
     R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
 }/* End of function R_ICU_Pinclr_CH3() */
+
+#endif
+
 
 /**************************************************************************//**
 * @brief This function sets Pin of IRQ4.
@@ -475,6 +494,7 @@ void R_ICU_Pinclr_CH6(void)  // @suppress("API function naming")
     R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
 }/* End of function R_ICU_Pinclr_CH6() */
 
+
 /**************************************************************************//**
 * @brief This function sets Pin of IRQ7.
 *******************************************************************************/
@@ -492,11 +512,11 @@ void R_ICU_Pinset_CH7(void)  // @suppress("API function naming")
 //    PFS->P107PFS_b.ISEL = 1U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
 
     /* IRQ7 : P204 */
-//    PFS->P204PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
-//    PFS->P204PFS_b.PSEL = 0U;  /* 0: Do not assign Peripheral */
-//    PFS->P204PFS_b.PDR  = 0U;  /* 0: Input port,  1: Output port */
-//    PFS->P204PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
-//    PFS->P204PFS_b.ISEL = 1U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+    PFS->P204PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P204PFS_b.PSEL = 0U;  /* 0: Do not assign Peripheral */
+    PFS->P204PFS_b.PDR  = 0U;  /* 0: Input port,  1: Output port */
+    PFS->P204PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P204PFS_b.ISEL = 1U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
 
     /* Enable protection for PFS function (Set to PWPR register) */
     R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
@@ -515,7 +535,7 @@ void R_ICU_Pinclr_CH7(void)  // @suppress("API function naming")
 //    PFS->P107PFS &= R_PIN_PRV_CLR_MASK;
 
     /* IRQ7 : P204 */
-//    PFS->P204PFS &= R_PIN_PRV_CLR_MASK;
+    PFS->P204PFS &= R_PIN_PRV_CLR_MASK;
 
     /* Enable protection for PFS function (Set to PWPR register) */
     R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
@@ -595,12 +615,12 @@ void R_ICU_Pinset_CH9(void)  // @suppress("API function naming")
 //    PFS->P410PFS_b.ISEL = 1U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
 
     /* IRQ9 : P409 */
-//    PFS->P409PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
-//    PFS->P409PFS_b.PSEL = 0U;  /* 0: Do not assign Peripheral */
-//    PFS->P409PFS_b.PDR  = 0U;  /* 0: Input port,  1: Output port */
-//    PFS->P409PFS_b.DSCR = 0U;  /* When using P409 : DSCR = 0b */
-//    PFS->P409PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
-//    PFS->P409PFS_b.ISEL = 1U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+    PFS->P409PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P409PFS_b.PSEL = 0U;  /* 0: Do not assign Peripheral */
+    PFS->P409PFS_b.PDR  = 0U;  /* 0: Input port,  1: Output port */
+    PFS->P409PFS_b.DSCR = 0U;  /* When using P409 : DSCR = 0b */
+    PFS->P409PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P409PFS_b.ISEL = 1U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
 
     /* Enable protection for PFS function (Set to PWPR register) */
     R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
@@ -619,7 +639,7 @@ void R_ICU_Pinclr_CH9(void)  // @suppress("API function naming")
 //    PFS->P410PFS &= R_PIN_PRV_CLR_MASK;
 
     /* IRQ9 : P409 */
-//    PFS->P409PFS &= R_PIN_PRV_CLR_MASK;
+    PFS->P409PFS &= R_PIN_PRV_CLR_MASK;
 
     /* Enable protection for PFS function (Set to PWPR register) */
     R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
@@ -628,8 +648,8 @@ void R_ICU_Pinclr_CH9(void)  // @suppress("API function naming")
 /**************************************************************************//**
 * @brief This function sets Pin of GPT_COM.
 *******************************************************************************/
-/* Function Name : R_GPT_COMA_Pinset */
-void R_GPT_COMA_Pinset(void)  // @suppress("API function naming")
+/* Function Name : R_GPT_COM_Pinset */
+void R_GPT_COM_Pinset(void)  // @suppress("API function naming")
 {
     /* Disable protection for PFS function (Set to PWPR register) */
     R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
@@ -648,38 +668,6 @@ void R_GPT_COMA_Pinset(void)  // @suppress("API function naming")
 //    PFS->P600PFS_b.PSEL = R_PIN_PRV_GPT_COM_PSEL;
 //    PFS->P600PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
 
-    /* Enable protection for PFS function (Set to PWPR register) */
-    R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
-}/* End of function R_GPT_COMA_Pinset() */
-
-/**************************************************************************//**
-* @brief This function clears the pin setting of GPT_COM.
-*******************************************************************************/
-/* Function Name : R_GPT_COMA_Pinclr */
-void R_GPT_COMA_Pinclr(void)  // @suppress("API function naming")
-{
-    /* Disable protection for PFS function (Set to PWPR register) */
-    R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
-
-    /* GTETRGA : P107 */
-//    PFS->P107PFS &= R_PIN_PRV_CLR_MASK;
-
-    /* GTETRGA : P600 */
-//    PFS->P600PFS &= R_PIN_PRV_CLR_MASK;
-
-    /* Enable protection for PFS function (Set to PWPR register) */
-    R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
-}/* End of function R_GPT_COMA_Pinclr() */
-
-/**************************************************************************//**
-* @brief This function sets Pin of GPT_COM.
-*******************************************************************************/
-/* Function Name : R_GPT_COMB_Pinset */
-void R_GPT_COMB_Pinset(void)  // @suppress("API function naming")
-{
-    /* Disable protection for PFS function (Set to PWPR register) */
-    R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
-
     /* GTETRGB : P106 */
 //    PFS->P106PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
 //    PFS->P106PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
@@ -696,16 +684,22 @@ void R_GPT_COMB_Pinset(void)  // @suppress("API function naming")
 
     /* Enable protection for PFS function (Set to PWPR register) */
     R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
-}/* End of function R_GPT_COMB_Pinset() */
+}/* End of function R_GPT_COM_Pinset() */
 
 /**************************************************************************//**
 * @brief This function clears the pin setting of GPT_COM.
 *******************************************************************************/
-/* Function Name : R_GPT_COMB_Pinclr */
-void R_GPT_COMB_Pinclr(void)  // @suppress("API function naming")
+/* Function Name : R_GPT_COM_Pinclr */
+void R_GPT_COM_Pinclr(void)  // @suppress("API function naming")
 {
     /* Disable protection for PFS function (Set to PWPR register) */
     R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
+
+    /* GTETRGA : P107 */
+//    PFS->P107PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* GTETRGA : P600 */
+//    PFS->P600PFS &= R_PIN_PRV_CLR_MASK;
 
     /* GTETRGB : P106 */
 //    PFS->P106PFS &= R_PIN_PRV_CLR_MASK;
@@ -715,7 +709,7 @@ void R_GPT_COMB_Pinclr(void)  // @suppress("API function naming")
 
     /* Enable protection for PFS function (Set to PWPR register) */
     R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
-}/* End of function R_GPT_COMB_Pinclr() */
+}/* End of function R_GPT_COM_Pinclr() */
 
 /**************************************************************************//**
 * @brief This function sets Pin of GPT320.
@@ -1902,14 +1896,14 @@ void R_SCI_Pinset_CH0(void)  // @suppress("API function naming") @suppress("Func
 //    PFS->P509PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
 
     /* TXD0 : P703 */
-//    PFS->P703PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
-//    PFS->P703PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
-//    PFS->P703PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+    PFS->P703PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P703PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P703PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
 
     /* When using SCI in I2C mode, set the pin to NMOS Open drain. */
 ////    PFS->P703PFS_b.NCODR = 1U;  /* 0: CMOS output, 1: NMOS open-drain output. */
-//    PFS->P703PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
-//    PFS->P703PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P703PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
+    PFS->P703PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
 
     /* RXD0 : P105 */
 //    PFS->P105PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
@@ -1932,14 +1926,14 @@ void R_SCI_Pinset_CH0(void)  // @suppress("API function naming") @suppress("Func
 //    PFS->P510PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
 
     /* RXD0 : P702 */
-//    PFS->P702PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
-//    PFS->P702PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
-//    PFS->P702PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+    PFS->P702PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P702PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P702PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
 
     /* When using SCI in I2C mode, set the pin to NMOS Open drain. */
 ////    PFS->P702PFS_b.NCODR = 1U;  /* 0: CMOS output, 1: NMOS open-drain output. */
-//    PFS->P702PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
-//    PFS->P702PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P702PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
+    PFS->P702PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
 
     /* SCK0 : P104 */
 //    PFS->P104PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
@@ -1984,7 +1978,7 @@ void R_SCI_Pinclr_CH0(void)  // @suppress("API function naming")
 //    PFS->P509PFS &= R_PIN_PRV_CLR_MASK;
 
     /* TXD0 : P703 */
-//    PFS->P703PFS &= R_PIN_PRV_CLR_MASK;
+    PFS->P703PFS &= R_PIN_PRV_CLR_MASK;
 
     /* SCK0 : P104 */
 //    PFS->P104PFS &= R_PIN_PRV_CLR_MASK;
@@ -2002,7 +1996,7 @@ void R_SCI_Pinclr_CH0(void)  // @suppress("API function naming")
 //    PFS->P510PFS &= R_PIN_PRV_CLR_MASK;
 
     /* RXD0 : P702 */
-//    PFS->P702PFS &= R_PIN_PRV_CLR_MASK;
+    PFS->P702PFS &= R_PIN_PRV_CLR_MASK;
 
     /* CTS0 : P107 */
 //    PFS->P107PFS &= R_PIN_PRV_CLR_MASK;
@@ -2109,24 +2103,24 @@ void R_SCI_Pinset_CH2(void)  // @suppress("API function naming") @suppress("Func
 //    PFS->P103PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
     
     /* TXD2 : P102 */
-//    PFS->P102PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
-//    PFS->P102PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
-//    PFS->P102PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+    PFS->P102PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P102PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P102PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
 
     /* When using SCI in I2C mode, set the pin to NMOS Open drain. */
 ////    PFS->P102PFS_b.NCODR = 1U;  /* 0: CMOS output, 1: NMOS open-drain output. */
-//    PFS->P102PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
-//    PFS->P102PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P102PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
+    PFS->P102PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
     
     /* RXD2 : P101 */
-//    PFS->P101PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
-//    PFS->P101PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
-//    PFS->P101PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+    PFS->P101PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P101PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P101PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
 
     /* When using SCI in I2C mode, set the pin to NMOS Open drain. */
 ////    PFS->P101PFS_b.NCODR = 1U;  /* 0: CMOS output, 1: NMOS open-drain output. */
-//    PFS->P101PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
-//    PFS->P101PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P101PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
+    PFS->P101PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
     
     /* SCK2 : P100 */
 //    PFS->P100PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
@@ -2150,13 +2144,13 @@ void R_SCI_Pinclr_CH2(void)  // @suppress("API function naming")
     R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
 
     /* TXD2 : P102 */
-//    PFS->P102PFS &= R_PIN_PRV_CLR_MASK;
+    PFS->P102PFS &= R_PIN_PRV_CLR_MASK;
 
     /* SCK2 : P100 */
 //    PFS->P100PFS &= R_PIN_PRV_CLR_MASK;
 
     /* RXD2 : P101 */
-//    PFS->P101PFS &= R_PIN_PRV_CLR_MASK;
+    PFS->P101PFS &= R_PIN_PRV_CLR_MASK;
 
     /* CTS2 : P103 */
 //    PFS->P103PFS &= R_PIN_PRV_CLR_MASK;
@@ -2284,6 +2278,7 @@ void R_SCI_Pinclr_CH3(void)  // @suppress("API function naming")
     R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
 }/* End of function R_SCI_Pinclr_CH3() */
 
+#if (BOARD_TYPE_EVK_TOKYOCOM  == 1)
 /**************************************************************************//**
 * @brief This function sets Pin of SCI4.
 *******************************************************************************/
@@ -2449,6 +2444,177 @@ void R_SCI_Pinclr_CH4(void)  // @suppress("API function naming")
     /* Enable protection for PFS function (Set to PWPR register) */
     R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
 }/* End of function R_SCI_Pinclr_CH4() */
+
+#else
+
+/**************************************************************************//**
+* @brief This function sets Pin of SCI4.
+*******************************************************************************/
+/* Function Name : R_SCI_Pinset_CH4 */
+void R_SCI_Pinset_CH4(void)  // @suppress("API function naming") @suppress("Function length")
+{
+    /* Disable protection for PFS function (Set to PWPR register) */
+    R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
+
+    /* CTS4 : P111 */
+//    PFS->P111PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P111PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P111PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+//    PFS->P111PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
+//    PFS->P111PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* CTS4 : P205 */
+//    PFS->P205PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P205PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P205PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+//    PFS->P205PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
+//    PFS->P205PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* CTS4 : P815 */
+//    PFS->P815PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P815PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P815PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+//    PFS->P815PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
+//    PFS->P815PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* TXD4 : P113 */
+//    PFS->P113PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P113PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P113PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+
+    /* When using SCI in I2C mode, set the pin to NMOS Open drain. */
+////    PFS->P113PFS_b.NCODR = 1U;  /* 0: CMOS output, 1: NMOS open-drain output. */
+//    PFS->P113PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
+//    PFS->P113PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* TXD4 : P202 */
+    PFS->P202PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P202PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P202PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+
+  /* When using SCI in I2C mode, set the pin to NMOS Open drain. */
+    PFS->P202PFS_b.NCODR = 1U;  /* 0: CMOS output, 1: NMOS open-drain output. */
+    PFS->P202PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
+    PFS->P202PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* TXD4 : P812 */
+//    PFS->P812PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P812PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P812PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+
+    /* When using SCI in I2C mode, set the pin to NMOS Open drain. */
+////    PFS->P812PFS_b.NCODR = 1U;  /* 0: CMOS output, 1: NMOS open-drain output. */
+//    PFS->P812PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
+//    PFS->P812PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* RXD4 : P112 */
+//    PFS->P112PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P112PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P112PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+
+    /* When using SCI in I2C mode, set the pin to NMOS Open drain. */
+////    PFS->P112PFS_b.NCODR = 1U;  /* 0: CMOS output, 1: NMOS open-drain output. */
+//    PFS->P112PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
+//    PFS->P112PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* RXD4 : P203 */
+    PFS->P203PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P203PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P203PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+
+  /* When using SCI in I2C mode, set the pin to NMOS Open drain. */
+    PFS->P203PFS_b.NCODR = 1U;  /* 0: CMOS output, 1: NMOS open-drain output. */
+    PFS->P203PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
+    PFS->P203PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* RXD4 : P813 */
+//    PFS->P813PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P813PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P813PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+
+    /* When using SCI in I2C mode, set the pin to NMOS Open drain. */
+////    PFS->P813PFS_b.NCODR = 1U;  /* 0: CMOS output, 1: NMOS open-drain output. */
+//    PFS->P813PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
+//    PFS->P813PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* SCK4 : P108 */
+//    PFS->P108PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P108PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P108PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+//    PFS->P108PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
+//    PFS->P108PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* SCK4 : P204 */
+//    PFS->P204PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P204PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P204PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+//    PFS->P204PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
+//    PFS->P204PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* SCK4 : P814 */
+//    PFS->P814PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P814PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P814PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+//    PFS->P814PFS_b.PSEL = R_PIN_PRV_SCI_PSEL_04;
+//    PFS->P814PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+
+    /* Enable protection for PFS function (Set to PWPR register) */
+    R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
+
+}/* End of function R_SCI_Pinset_CH4() */
+
+/**************************************************************************//**
+* @brief This function clears the pin setting of SCI4.
+*******************************************************************************/
+/* Function Name : R_SCI_Pinclr_CH4 */
+void R_SCI_Pinclr_CH4(void)  // @suppress("API function naming")
+{
+    /* Disable protection for PFS function (Set to PWPR register) */
+    R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
+
+    /* TXD4 : P113 */
+//    PFS->P113PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* TXD4 : P202 */
+    PFS->P202PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* TXD4 : P812 */
+//    PFS->P812PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* SCK4 : P108 */
+//    PFS->P108PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* SCK4 : P204 */
+//    PFS->P204PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* SCK4 : P814 */
+//    PFS->P814PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* RXD4 : P112 */
+//    PFS->P112PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* RXD4 : P203 */
+    PFS->P203PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* RXD4 : P813 */
+//    PFS->P813PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* CTS4 : P111 */
+//    PFS->P111PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* CTS4 : P205 */
+//    PFS->P205PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* CTS4 : P815 */
+//    PFS->P815PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* Enable protection for PFS function (Set to PWPR register) */
+    R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
+}/* End of function R_SCI_Pinclr_CH4() */
+
+#endif
+
 
 /**************************************************************************//**
 * @brief This function sets Pin of SCI5.
@@ -2689,6 +2855,7 @@ void R_SCI_Pinclr_CH9(void)  // @suppress("API function naming")
     R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
 }/* End of function R_SCI_Pinclr_CH9() */
 
+#if (BOARD_TYPE_EVK_TOKYOCOM  == 1)
 
 /**************************************************************************//**
 * @brief This function sets Pin of RSPI0.
@@ -2703,7 +2870,6 @@ void R_RSPI_Pinset_CH0(void)  // @suppress("API function naming") @suppress("Fun
 {
     /* Disable protection for PFS function (Set to PWPR register) */
     R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
-
     /* MISOA_A : P105 */
 //    PFS->P105PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
 //    PFS->P105PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
@@ -2712,11 +2878,11 @@ void R_RSPI_Pinset_CH0(void)  // @suppress("API function naming") @suppress("Fun
 //    PFS->P105PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
 
     /* MISOA_B : P815 */
-//    PFS->P815PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
-//    PFS->P815PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
-//    PFS->P815PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
-//    PFS->P815PFS_b.PSEL = R_PIN_PRV_RSPI_PSEL;
-//    PFS->P815PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P815PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P815PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P815PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+    PFS->P815PFS_b.PSEL = R_PIN_PRV_RSPI_PSEL;
+    PFS->P815PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
 
     /* MOSIA_A : P104 */
 //    PFS->P104PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
@@ -2726,11 +2892,11 @@ void R_RSPI_Pinset_CH0(void)  // @suppress("API function naming") @suppress("Fun
 //    PFS->P104PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
 
     /* MOSIA_B : P010 */
-//    PFS->P010PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
-//    PFS->P010PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
-//    PFS->P010PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
-//    PFS->P010PFS_b.PSEL = R_PIN_PRV_RSPI_PSEL;
-//    PFS->P010PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P010PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P010PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P010PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+    PFS->P010PFS_b.PSEL = R_PIN_PRV_RSPI_PSEL;
+    PFS->P010PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
 
     /* RSPCKA_A : P107 */
 //    PFS->P107PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
@@ -2738,6 +2904,180 @@ void R_RSPI_Pinset_CH0(void)  // @suppress("API function naming") @suppress("Fun
 //    PFS->P107PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
 //    PFS->P107PFS_b.PSEL = R_PIN_PRV_RSPI_PSEL;
 //    PFS->P107PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* RSPCKA_B : P011 */
+    PFS->P011PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P011PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P011PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+    PFS->P011PFS_b.PSEL = R_PIN_PRV_RSPI_PSEL;
+    PFS->P011PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* SSLA0_A : P103 */
+//    PFS->P103PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P103PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P103PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+//    PFS->P103PFS_b.PSEL = R_PIN_PRV_RSPI_PSEL;
+//    PFS->P103PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* SSLA0_B : P014 */
+//    PFS->P014PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P014PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P014PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+//    PFS->P014PFS_b.PSEL = R_PIN_PRV_RSPI_PSEL;
+//    PFS->P014PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* SSLA1_A : P102 */
+//    PFS->P102PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P102PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P102PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+//    PFS->P102PFS_b.PSEL = R_PIN_PRV_RSPI_PSEL;
+//    PFS->P102PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* SSLA1_B : P015 */
+//    PFS->P015PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P015PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P015PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+//    PFS->P015PFS_b.PSEL = R_PIN_PRV_RSPI_PSEL;
+//    PFS->P015PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* SSLA2_A : P101 */
+//    PFS->P101PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P101PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P101PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+//    PFS->P101PFS_b.PSEL = R_PIN_PRV_RSPI_PSEL;
+//    PFS->P101PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* SSLA2_B : P814 */
+//    PFS->P814PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P814PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P814PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+//    PFS->P814PFS_b.PSEL = R_PIN_PRV_RSPI_PSEL;
+//    PFS->P814PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* SSLA3_A : P100 */
+//    PFS->P100PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P100PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P100PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+//    PFS->P100PFS_b.PSEL = R_PIN_PRV_RSPI_PSEL;
+//    PFS->P100PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* SSLA3_B : P813 */
+//    PFS->P813PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P813PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P813PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+//    PFS->P813PFS_b.PSEL = R_PIN_PRV_RSPI_PSEL;
+//    PFS->P813PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* Enable protection for PFS function (Set to PWPR register) */
+    R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
+}/* End of function R_RSPI_Pinset_CH0() */
+
+/**************************************************************************//**
+* @brief This function clears the pin setting of RSPI0.
+*******************************************************************************/
+/* Function Name : R_RSPI_Pinclr_CH0 */
+void R_RSPI_Pinclr_CH0(void)  // @suppress("API function naming")
+{
+    /* Disable protection for PFS function (Set to PWPR register) */
+    R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
+
+    /* MISOA_A : P105 */
+//    PFS->P105PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* MISOA_B : P815 */
+    PFS->P815PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* MOSIA_A : P104 */
+//    PFS->P104PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* MOSIA_B : P010 */
+    PFS->P010PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* RSPCKA_A : P107 */
+//    PFS->P107PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* RSPCKA_B : P011 */
+    PFS->P011PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* SSLA0_A : P103 */
+//    PFS->P103PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* SSLA0_B : P014 */
+//    PFS->P014PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* SSLA1_A : P102 */
+//    PFS->P102PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* SSLA1_B : P015 */
+//    PFS->P015PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* SSLA2_A : P101 */
+//    PFS->P101PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* SSLA2_B : 814 */
+//    PFS->P814PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* SSLA3_A : P100 */
+//    PFS->P100PFS &= R_PIN_PRV_CLR_MASK;
+
+    /* SSLA3_B : P813 */
+//    PFS->P813PFS &= R_PIN_PRV_CLR_MASK;
+
+
+    /* Enable protection for PFS function (Set to PWPR register) */
+    R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
+}/* End of function R_RSPI_Pinclr_CH0() */
+
+
+#elif (BOARD_TYPE_EVK_TOKYOCOM  == 2)
+
+/**************************************************************************//**
+* @brief This function sets Pin of RSPI0.
+* @note  In the case of SPI function, the same signal names are present with @n
+* the suffixes "_A", "_B" "_C" and "_D" attached. These indicate groups @n
+* in terms of timing adjustment, and signals from different @n
+* groups cannot be used at the same time. The exceptions are the RSPCKA_C and MOSIA_C signals @n
+* for the SPI and the SSLB0_D signal, which can be used at the same time as signals from group B. @n
+*******************************************************************************/
+/* Function Name : R_RSPI_Pinset_CH0 */
+void R_RSPI_Pinset_CH0(void)  // @suppress("API function naming") @suppress("Function length")
+{
+    /* Disable protection for PFS function (Set to PWPR register) */
+    R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
+    /* MISOA_A : P105 */
+    PFS->P105PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P105PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P105PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+    PFS->P105PFS_b.PSEL = R_PIN_PRV_RSPI_PSEL;
+    PFS->P105PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* MISOA_B : P815 */
+//    PFS->P815PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P815PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P815PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+//    PFS->P815PFS_b.PSEL = R_PIN_PRV_RSPI_PSEL;
+//    PFS->P815PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* MOSIA_A : P104 */
+    PFS->P104PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P104PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P104PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+    PFS->P104PFS_b.PSEL = R_PIN_PRV_RSPI_PSEL;
+    PFS->P104PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* MOSIA_B : P010 */
+//    PFS->P010PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+//    PFS->P010PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+//    PFS->P010PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+//    PFS->P010PFS_b.PSEL = R_PIN_PRV_RSPI_PSEL;
+//    PFS->P010PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+
+    /* RSPCKA_A : P107 */
+    PFS->P107PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P107PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P107PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+    PFS->P107PFS_b.PSEL = R_PIN_PRV_RSPI_PSEL;
+    PFS->P107PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
 
     /* RSPCKA_B : P011 */
 //    PFS->P011PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
@@ -2816,19 +3156,19 @@ void R_RSPI_Pinclr_CH0(void)  // @suppress("API function naming")
     R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
 
     /* MISOA_A : P105 */
-//    PFS->P105PFS &= R_PIN_PRV_CLR_MASK;
+    PFS->P105PFS &= R_PIN_PRV_CLR_MASK;
 
     /* MISOA_B : P815 */
 //    PFS->P815PFS &= R_PIN_PRV_CLR_MASK;
 
     /* MOSIA_A : P104 */
-//    PFS->P104PFS &= R_PIN_PRV_CLR_MASK;
+    PFS->P104PFS &= R_PIN_PRV_CLR_MASK;
 
     /* MOSIA_B : P010 */
 //    PFS->P010PFS &= R_PIN_PRV_CLR_MASK;
 
     /* RSPCKA_A : P107 */
-//    PFS->P107PFS &= R_PIN_PRV_CLR_MASK;
+    PFS->P107PFS &= R_PIN_PRV_CLR_MASK;
 
     /* RSPCKA_B : P011 */
 //    PFS->P011PFS &= R_PIN_PRV_CLR_MASK;
@@ -2862,6 +3202,9 @@ void R_RSPI_Pinclr_CH0(void)  // @suppress("API function naming")
     R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
 }/* End of function R_RSPI_Pinclr_CH0() */
 
+
+
+#endif
 
 
 /**************************************************************************//**
@@ -3122,20 +3465,20 @@ void R_RIIC_Pinset_CH0(void)  // @suppress("Source file naming") @suppress("API 
     R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
 
     /* SCL0 : P013 */    
-//    PFS->P013PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
-//    PFS->P013PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
-//    PFS->P013PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
-//    PFS->P013PFS_b.DSCR = 0U;  /* When using RIIC : DSCR = 0b */
-//    PFS->P013PFS_b.PSEL = R_PIN_PRV_RIIC_PSEL;
-//    PFS->P013PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P013PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P013PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P013PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+    PFS->P013PFS_b.DSCR = 0U;  /* When using RIIC : DSCR = 0b */
+    PFS->P013PFS_b.PSEL = R_PIN_PRV_RIIC_PSEL;
+    PFS->P013PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
 
     /* SDA0 : P012 */     
-//    PFS->P012PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
-//    PFS->P012PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
-//    PFS->P012PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
-//    PFS->P012PFS_b.DSCR = 0U;  /* When using RIIC : DSCR = 0b */
-//    PFS->P012PFS_b.PSEL = R_PIN_PRV_RIIC_PSEL;
-//    PFS->P012PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P012PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P012PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P012PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+    PFS->P012PFS_b.DSCR = 0U;  /* When using RIIC : DSCR = 0b */
+    PFS->P012PFS_b.PSEL = R_PIN_PRV_RIIC_PSEL;
+    PFS->P012PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
 
     /* Enable protection for PFS function (Set to PWPR register) */
     R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
@@ -3152,10 +3495,10 @@ void R_RIIC_Pinclr_CH0(void)  // @suppress("Source file naming") @suppress("API 
     R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
 
     /* SCL0 : P013 */    
-//    PFS->P013PFS &= R_PIN_PRV_CLR_MASK;
+    PFS->P013PFS &= R_PIN_PRV_CLR_MASK;
 
     /* SDA0 : P012 */     
-//    PFS->P012PFS &= R_PIN_PRV_CLR_MASK;
+    PFS->P012PFS &= R_PIN_PRV_CLR_MASK;
 
     /* Enable protection for PFS function (Set to PWPR register) */
     R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
@@ -3172,20 +3515,20 @@ void R_RIIC_Pinset_CH1(void)  // @suppress("Source file naming") @suppress("API 
     R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
 
     /* SCL1 : P701 */     
-//    PFS->P701PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
-//    PFS->P701PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
-//    PFS->P701PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
-//    PFS->P701PFS_b.DSCR = 0U;  /* When using RIIC : DSCR = 0b */
-//    PFS->P701PFS_b.PSEL = R_PIN_PRV_RIIC_PSEL;
-//    PFS->P701PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P701PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P701PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P701PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+    PFS->P701PFS_b.DSCR = 0U;  /* When using RIIC : DSCR = 0b */
+    PFS->P701PFS_b.PSEL = R_PIN_PRV_RIIC_PSEL;
+    PFS->P701PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
 
     /* SDA1 : P700 */     
-//    PFS->P700PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
-//    PFS->P700PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
-//    PFS->P700PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
-//    PFS->P700PFS_b.DSCR = 0U;  /* When using RIIC : DSCR = 0b */
-//    PFS->P700PFS_b.PSEL = R_PIN_PRV_RIIC_PSEL;
-//    PFS->P700PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P700PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P700PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P700PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+    PFS->P700PFS_b.DSCR = 0U;  /* When using RIIC : DSCR = 0b */
+    PFS->P700PFS_b.PSEL = R_PIN_PRV_RIIC_PSEL;
+    PFS->P700PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
 
     /* Enable protection for PFS function (Set to PWPR register) */
     R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
@@ -3202,10 +3545,10 @@ void R_RIIC_Pinclr_CH1(void)  // @suppress("Source file naming") @suppress("API 
     R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
 
     /* SCL1 : P701 */     
-//    PFS->P701PFS &= R_PIN_PRV_CLR_MASK;
+    PFS->P701PFS &= R_PIN_PRV_CLR_MASK;
 
     /* SCL1 : P700 */     
-//    PFS->P700PFS &= R_PIN_PRV_CLR_MASK;
+    PFS->P700PFS &= R_PIN_PRV_CLR_MASK;
 
     /* Enable protection for PFS function (Set to PWPR register) */
     R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
@@ -3318,11 +3661,11 @@ void R_S14AD_Pinset(void)  // @suppress("Source file naming") @suppress("API fun
 //    PFS->P006PFS_b.ASEL = 1U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
 
     /* AN007 : P007 */
-//    PFS->P007PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
-//    PFS->P007PFS_b.PSEL = 0U;  /* 0: Do not assign Peripheral */
-//    PFS->P007PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
-//    PFS->P007PFS_b.PDR  = 0U;  /* 0: Input port,  1: Output port */
-//    PFS->P007PFS_b.ASEL = 1U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
+    PFS->P007PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
+    PFS->P007PFS_b.PSEL = 0U;  /* 0: Do not assign Peripheral */
+    PFS->P007PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
+    PFS->P007PFS_b.PDR  = 0U;  /* 0: Input port,  1: Output port */
+    PFS->P007PFS_b.ASEL = 1U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
 
     /* AN016 : P501 */
 //    PFS->P501PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
@@ -3404,7 +3747,7 @@ void R_S14AD_Pinclr(void)  // @suppress("Source file naming") @suppress("API fun
 //    PFS->P006PFS &= R_PIN_PRV_CLR_MASK;
 
     /* AN007 : P007 */
-//    PFS->P007PFS &= R_PIN_PRV_CLR_MASK;
+    PFS->P007PFS &= R_PIN_PRV_CLR_MASK;
 
     /* AN016 : P501 */
 //    PFS->P501PFS &= R_PIN_PRV_CLR_MASK;
@@ -3907,56 +4250,8 @@ void R_CLKOUT_Pinclr(void) // @suppress("Function declaration") @suppress("Sourc
     R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
 }/* End of function R_CLKOUT_Pinclr() */
 
-
-/**************************************************************************//**
-* @brief This function sets Pin of RTC.
-*******************************************************************************/
-/* Function Name : R_RTC_Pinset */
-void R_RTC_Pinset(void)  // @suppress("Source file naming") @suppress("API function naming")
-{
-    /* Disable protection for PFS function (Set to PWPR register) */
-    R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
-
-    /* RTCOUT : P202 */
-//    PFS->P202PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
-//    PFS->P202PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
-//    PFS->P202PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
-//    PFS->P202PFS_b.PSEL = R_PIN_PRV_RTC_PSEL;
-//    PFS->P202PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
-
-    /* RTCOUT : P301 */
-//    PFS->P301PFS_b.PMR  = 0U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
-//    PFS->P301PFS_b.ASEL = 0U;  /* 0: Do not use as an analog pin, 1: Use as an analog pin. */
-//    PFS->P301PFS_b.ISEL = 0U;  /* 0: Do not use as an IRQn input pin,  1: Use as an IRQn input pin. */
-//    PFS->P301PFS_b.PSEL = R_PIN_PRV_RTC_PSEL;
-//    PFS->P301PFS_b.PMR  = 1U;  /* 0: Use the pin as a general I/O port, 1: Use the pin as a peripheral module. */
-
-    /* Enable protection for PFS function (Set to PWPR register) */
-    R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
-}/* End of function R_RTC_Pinset() */
-
-/**************************************************************************//**
-* @brief This function clears the pin setting of RTC.
-*******************************************************************************/
-/* Function Name : R_RTC_Pinclr */
-void R_RTC_Pinclr(void)  // @suppress("Source file naming") @suppress("API function naming")
-{
-    /* Disable protection for PFS function (Set to PWPR register) */
-    R_SYS_RegisterProtectDisable(SYSTEM_REG_PROTECT_MPC);
-
-    /* RTCOUT : P202 */
-//    PFS->P202PFS &= R_PIN_PRV_CLR_MASK;
-
-    /* RTCOUT : P301 */
-//    PFS->P301PFS &= R_PIN_PRV_CLR_MASK;
-
-    /* Enable protection for PFS function (Set to PWPR register) */
-    R_SYS_RegisterProtectEnable(SYSTEM_REG_PROTECT_MPC);
-}/* End of function R_RTC_Pinclr() */
-
-
 /********************************************************************/
-/* RTC(RTCIC), CCC, WUPT have some input/output pin.                */
+/* RTC, CCC, WUPT have some input/output pin.                       */
 /* But these do not need setting of I/O register for PFS register.  */
 /* So, there is no function for those.                              */
 /********************************************************************/
